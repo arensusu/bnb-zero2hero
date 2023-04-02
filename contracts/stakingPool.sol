@@ -17,20 +17,30 @@ struct PoolInfo {
 }
 
 contract StakingPool {
+    bool public isInitialized = false;
+    uint256 public totalAllocPoint = 0;
+    uint256 public startBlock = 0;
+
     SusuToken public rewardToken;
     PoolInfo[] public poolInfo;
     mapping(uint256 => mapping(address => UserInfo)) public userInfo;
-    uint256 totalAllocPoint = 0;
-    uint256 startBlock = 0;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
 
-    constructor(SusuToken _token) { rewardToken = _token; }
+    constructor() {}
+
+    modifier initializer() {
+        require(!isInitialized, 'Had been initialized');
+        isInitialized = true;
+        _;
+    }
+
+    function initialize(SusuToken _token) public { rewardToken = _token; }
 
     function add(ERC20 _lpToken) public {
         uint256 lastRewardBlock = block.number > startBlock ? block.number : startBlock;
-        uint256 allocPoint = 100;
+        uint256 allocPoint = 1000;
         totalAllocPoint += allocPoint;
         poolInfo.push(PoolInfo({
             lpToken: _lpToken,
